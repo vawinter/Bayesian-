@@ -134,6 +134,7 @@ a.post = a+length(airplane)
 b.post = b+sum(airplane)
 post.mean.analytic = a.post/b.post
 
+# ANSWERS ----
 # Mean: Analytics
 mean(u)
 # 0.3065115
@@ -154,6 +155,9 @@ quantile(u,c(.025,.975))
 ########### End Question 2 ##############
 
 ########### Solution: Question 3 ##############
+rm(list = ls())
+gc()
+
 # Let y_i be the number of sick days that a person takes due to an illness, 
 # and let x_i be the number of months that person has been taking part in a 
 # treatment program.  
@@ -163,33 +167,85 @@ quantile(u,c(.025,.975))
 # We will assume that both of these regression parameters have prior 
 # distributions that are Gaussian with mean zero and variance equal to 4. 
 
-# Data = Poisson
-# Prior = gaussian
-m = 0
-v = 4
+# Data = Poisson w/ 2 regression paramaters
+# y_i∼Pois(exp⁡{a+bx_i })
+## with priors
+## b1~N(0, 4)
+## b2~N(0, 4)
 
-#The data can be read in as follows:
-  
 x = c(8,14,11,7,32,8,28,21,27,15,26,13,19,22,15,12,15,7,9,15,26,22,16,12,6)
 y = c(5,2,5,4,1,3,0,2,1,2,2,5,3,2,1,2,2,8,5,2,1,1,6,4,3)
 
-# Using importance sampling, draw samples from the posterior distribution of 
-# [a,b│x].  
-# 
+# hyperparameters
+a = 1
+b = 1
 
-# Draw enough samples that your effective sample size is at least 500, 
-# and higher if possible.  Report the posterior mean and marginal 95% credible 
-# intervals for all parameters.
+## [1] draw M RVs from the prior (normal)
+M = 10^5
+b0.star=rnorm(M, 0, sqrt(4))
+b1.star=rnorm(M, 0, sqrt(4))
 
-S = 500
+## [2] calculate weights
+log.q = rep(NA, M)
+
+for(m in 1:M){
+  p = exp(b0.star[m] + b1.star[m]*x)
+  log.q[m]=sum(dpois(y, lambda = p, log=TRUE))
+}
+
+log.denom=logsumexp(log.q)
+
+log.w=log.q-log.denom
+w=exp(log.w)
+summary(w)
+sum(w)
+
+ESS=1/sum(w^2)
+ESS
+
+## resampling
+N=500
+## resample the INDEX (draw from the prior for all three parameters)
+idx=sample(1:M,size=N,replace=TRUE,prob=w)
+
+b0=b0.star[idx]
+b1=b1.star[idx]
+
+hist(b0)
+hist(b1)
+
+## posterior inference
+post.mat=cbind(b0,b1)
+post.mean=apply(post.mat,2,mean)
+post.CI=apply(post.mat,2,quantile,c(.025,.975))
+
+# ANSWER: Find posterior mean ----
+post.mean
+#       b0          b1 
+# 2.10631000 -0.07312266
+
+# ANSWER: Marginal 95% CI ----
+post.CI
+#             b0          b1
+# 2.5%  1.488859 -0.11624149
+# 97.5% 2.702278 -0.03320681
+
 
 # Using the posterior predictive distribution, provide a 95% prediction interval 
 # on the number of sick days that might be taken in a year for a person who has 
 # been on the treatment program for 24 months.  
+mn.ppd_1=b0+b1*24
+hist(mn.ppd_1,main="Posterior Predictive Mean: Number of sick days, 24 mo.")
+
+summary(mn.ppd_1) 
+#     Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# -7.2392 -4.7531 -4.1950 -4.2671 -3.5749 -0.6076 
 
 # Provide a similar 95% prediction interval for a person 
 # who has been on the treatment program for 36 months
-
-
-
+mn.ppd_2=b0+b1*36
+hist(mn.ppd_2, main="Posterior Predictive Mean: Number of sick days, 36 mo.")
+summary(mn.ppd_2)
+#     Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# -7.1902 -4.7145 -4.1497 -4.2331 -3.5638 -0.5735
 
