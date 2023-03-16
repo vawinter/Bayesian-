@@ -1,0 +1,472 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\title{Homework3}
+\author{V. Winter}
+\date{3/14/2023}
+
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Homework3},
+  pdfauthor={V. Winter},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\begin{document}
+\maketitle
+
+\hypertarget{question-1}{%
+\subsection{Question 1}\label{question-1}}
+
+Let 𝑦𝑖 be the number of sick days that a person takes due to an illness,
+Let 𝑥𝑖 be the number of months that person has been taking part in a
+treatment program.
+
+Data model : yi \textasciitilde{} Pois(exp\{a + bxi\}) a Poisson
+regression model with two regression parameters a and b.
+
+We will assume that both of these regression parameters have prior
+distributions that are Gaussian with mean zero and variance equal to 4.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x}\OtherTok{=}\FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,}\DecValTok{14}\NormalTok{,}\DecValTok{11}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{32}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{28}\NormalTok{,}\DecValTok{21}\NormalTok{,}\DecValTok{27}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{26}\NormalTok{,}\DecValTok{13}\NormalTok{,}\DecValTok{19}\NormalTok{,}\DecValTok{22}\NormalTok{,}\DecValTok{15}\NormalTok{,}
+    \DecValTok{12}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{9}\NormalTok{,}\DecValTok{15}\NormalTok{,}\DecValTok{26}\NormalTok{,}\DecValTok{22}\NormalTok{,}\DecValTok{16}\NormalTok{,}\DecValTok{12}\NormalTok{,}\DecValTok{6}\NormalTok{)}
+
+\NormalTok{y}\OtherTok{=}\FunctionTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{6}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\tightlist
+\item
+  Construct a Metropolis Hasting sampler that jointly proposes (a,b)
+  from a bivariate normal distribution with the current values of both
+  parameters as the mean. Begin with a proposal distribution that has a
+  diagonal covariance matrix with 0.01 on both diagonal elements.
+\end{enumerate}
+
+Use Shaby and Wells' log-adaptive tuning approach to adaptively tune the
+proposal distribution, with adaptation happening every 100 MCMC
+iterations. Run this until you are sure that your algorithm converges to
+the stationary distribution.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# set for reproducibility}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+
+\CommentTok{\# Libraries}
+\FunctionTok{library}\NormalTok{(coda)}
+\FunctionTok{library}\NormalTok{(mvtnorm)}
+\FunctionTok{library}\NormalTok{(maptools)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: sp
+\end{verbatim}
+
+\begin{verbatim}
+## Checking rgeos availability: FALSE
+## Please note that 'maptools' will be retired during 2023,
+## plan transition at your earliest convenience;
+## some functionality will be moved to 'sp'.
+##      Note: when rgeos is not available, polygon geometry     computations in maptools depend on gpclib,
+##      which has a restricted licence. It is disabled by default;
+##      to enable gpclib, type gpclibPermit()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(maps)}
+\FunctionTok{library}\NormalTok{(mgcv)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: nlme
+\end{verbatim}
+
+\begin{verbatim}
+## This is mgcv 1.8-41. For overview type 'help("mgcv-package")'.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(glmnet)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: Matrix
+\end{verbatim}
+
+\begin{verbatim}
+## Loaded glmnet 4.1-6
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(MASS)}
+\FunctionTok{library}\NormalTok{(nimble)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## nimble version 0.13.1 is loaded.
+## For more information on NIMBLE and a User Manual,
+## please visit https://R-nimble.org.
+## 
+## Note for advanced users who have written their own MCMC samplers:
+##   As of version 0.13.0, NIMBLE's protocol for handling posterior
+##   predictive nodes has changed in a way that could affect user-defined
+##   samplers in some situations. Please see Section 15.5.1 of the User Manual.
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'nimble'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stats':
+## 
+##     simulate
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# \# Source fun}
+\CommentTok{\# source("Homework3/mcmc.lm.rr.r")}
+
+\DocumentationTok{\#\# Define the log{-}likelihood function}
+\NormalTok{loglike }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(a, b, x, y) \{}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{sum}\NormalTok{(}\FunctionTok{dpois}\NormalTok{(y, }\FunctionTok{exp}\NormalTok{(a }\SpecialCharTok{+}\NormalTok{ b}\SpecialCharTok{*}\NormalTok{x), }\AttributeTok{log=}\ConstantTok{TRUE}\NormalTok{)))}
+\NormalTok{\}}
+
+\CommentTok{\# Set up the prior distribution parameters}
+\NormalTok{prior\_mean }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{prior\_var }\OtherTok{\textless{}{-}} \FunctionTok{diag}\NormalTok{(}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\DecValTok{4}
+
+\CommentTok{\# Set up the proposal distribution}
+\NormalTok{proposal\_var }\OtherTok{\textless{}{-}} \FunctionTok{diag}\NormalTok{(}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\FloatTok{0.01}
+
+\CommentTok{\# Set up the initial values}
+\NormalTok{a }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{b }\OtherTok{\textless{}{-}} \DecValTok{0}
+
+\CommentTok{\# Set up the MCMC algorithm}
+\NormalTok{niter }\OtherTok{\textless{}{-}} \DecValTok{10000}
+\NormalTok{samples }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, niter, }\DecValTok{2}\NormalTok{)}
+\NormalTok{accept }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{cov\_mat }\OtherTok{\textless{}{-}}\NormalTok{ proposal\_var}
+\NormalTok{tune\_interval }\OtherTok{\textless{}{-}} \DecValTok{100}
+\NormalTok{tune\_count }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{tune\_iter }\OtherTok{\textless{}{-}}\NormalTok{ tune\_interval}
+
+\CommentTok{\# Run the MCMC algorithm}
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{niter) \{}
+  \CommentTok{\# Generate a proposed value for a and b}
+\NormalTok{  proposal }\OtherTok{\textless{}{-}} \FunctionTok{mvrnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{c}\NormalTok{(a, b), cov\_mat)}
+\NormalTok{  a\_prop }\OtherTok{\textless{}{-}}\NormalTok{ proposal[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  b\_prop }\OtherTok{\textless{}{-}}\NormalTok{ proposal[}\DecValTok{2}\NormalTok{]}
+  
+  \CommentTok{\# Calculate the log{-}likelihoods for the current and proposed values}
+\NormalTok{  loglike\_curr }\OtherTok{\textless{}{-}} \FunctionTok{loglike}\NormalTok{(a, b, x, y)}
+\NormalTok{  loglike\_prop }\OtherTok{\textless{}{-}} \FunctionTok{loglike}\NormalTok{(a\_prop, b\_prop, x, y)}
+  
+  \CommentTok{\# Calculate the log{-}prior densities for the current and proposed values}
+\NormalTok{  logprior\_curr }\OtherTok{\textless{}{-}} \FunctionTok{dmvnorm}\NormalTok{(}\FunctionTok{c}\NormalTok{(a, b), prior\_mean, prior\_var, }\AttributeTok{log=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  logprior\_prop }\OtherTok{\textless{}{-}} \FunctionTok{dmvnorm}\NormalTok{(}\FunctionTok{c}\NormalTok{(a\_prop, b\_prop), prior\_mean, prior\_var, }\AttributeTok{log=}\ConstantTok{TRUE}\NormalTok{)}
+  
+  \CommentTok{\# Calculate the log{-}acceptance ratio}
+\NormalTok{  log\_accept\_ratio }\OtherTok{\textless{}{-}}\NormalTok{ loglike\_prop }\SpecialCharTok{+}\NormalTok{ logprior\_prop }\SpecialCharTok{{-}}\NormalTok{ loglike\_curr }\SpecialCharTok{{-}}\NormalTok{ logprior\_curr}
+  
+  \CommentTok{\# Accept or reject the proposed value}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{log}\NormalTok{(}\FunctionTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{)) }\SpecialCharTok{\textless{}}\NormalTok{ log\_accept\_ratio) \{}
+\NormalTok{    a }\OtherTok{\textless{}{-}}\NormalTok{ a\_prop}
+\NormalTok{    b }\OtherTok{\textless{}{-}}\NormalTok{ b\_prop}
+\NormalTok{    accept }\OtherTok{\textless{}{-}}\NormalTok{ accept }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{  \}}
+  
+  \CommentTok{\# Save the current values of a and b}
+\NormalTok{  samples[i, }\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ a}
+\NormalTok{  samples[i, }\DecValTok{2}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ b}
+  
+  \CommentTok{\# Update the covariance matrix and tune the proposal distribution}
+  \ControlFlowTok{if}\NormalTok{ (i }\SpecialCharTok{==}\NormalTok{ tune\_iter) \{}
+    \CommentTok{\# Calculate the acceptance rate}
+\NormalTok{    acceptance\_rate }\OtherTok{\textless{}{-}}\NormalTok{ accept}\SpecialCharTok{/}\NormalTok{tune\_interval}
+    
+    \CommentTok{\# Update the covariance matrix}
+\NormalTok{    cov\_mat }\OtherTok{\textless{}{-}} \FunctionTok{cov}\NormalTok{(samples[(i}\SpecialCharTok{{-}}\NormalTok{tune\_interval}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{i,])}
+    
+    \CommentTok{\# Tune the proposal distribution}
+    \ControlFlowTok{if}\NormalTok{ (acceptance\_rate }\SpecialCharTok{\textless{}} \FloatTok{0.2}\NormalTok{) \{}
+\NormalTok{      proposal\_var }\OtherTok{\textless{}{-}}\NormalTok{ proposal\_var}\SpecialCharTok{/}\DecValTok{2}
+\NormalTok{    \} }\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{ (acceptance\_rate }\SpecialCharTok{\textgreater{}} \FloatTok{0.3}\NormalTok{) \{}
+\NormalTok{      proposal\_var }\OtherTok{\textless{}{-}}\NormalTok{ proposal\_var}\SpecialCharTok{*}\DecValTok{2}
+\NormalTok{    \}}
+    
+    \CommentTok{\# Reset the acceptance count}
+\NormalTok{    accept }\OtherTok{\textless{}{-}} \DecValTok{0}
+    
+    \CommentTok{\# Increment the tune count and tune iteration}
+\NormalTok{    tune\_count }\OtherTok{\textless{}{-}}\NormalTok{ tune\_count}
+\NormalTok{  \}\}  }
+    
+\CommentTok{\# Print summary of results}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Mean of a:"}\NormalTok{, }\FunctionTok{mean}\NormalTok{(samples[,}\DecValTok{1}\NormalTok{]), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Mean of a: 2.033761
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Mean of b:"}\NormalTok{, }\FunctionTok{mean}\NormalTok{(samples[,}\DecValTok{2}\NormalTok{]), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Mean of b: -0.06873941
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"95\% credible interval for a:"}\NormalTok{, }\FunctionTok{quantile}\NormalTok{(samples[,}\DecValTok{1}\NormalTok{], }\FunctionTok{c}\NormalTok{(}\FloatTok{0.025}\NormalTok{, }\FloatTok{0.975}\NormalTok{)), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 95% credible interval for a: 1.405703 2.595796
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"95\% credible interval for b:"}\NormalTok{, }\FunctionTok{quantile}\NormalTok{(samples[,}\DecValTok{2}\NormalTok{], }\FunctionTok{c}\NormalTok{(}\FloatTok{0.025}\NormalTok{, }\FloatTok{0.975}\NormalTok{)), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 95% credible interval for b: -0.1085646 -0.02754659
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# Accept/Reject {-}{-}{-}{-}}
+\NormalTok{accept}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4414
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# [1] 4770}
+
+\CommentTok{\# Plot results}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\FunctionTok{plot}\NormalTok{(samples[,}\DecValTok{1}\NormalTok{], }\AttributeTok{type=}\StringTok{"l"}\NormalTok{, }\AttributeTok{ylab=}\StringTok{"a"}\NormalTok{, }\AttributeTok{main=}\StringTok{"Traceplot of a"}\NormalTok{)}
+\FunctionTok{plot}\NormalTok{(samples[,}\DecValTok{2}\NormalTok{], }\AttributeTok{type=}\StringTok{"l"}\NormalTok{, }\AttributeTok{ylab=}\StringTok{"b"}\NormalTok{, }\AttributeTok{main=}\StringTok{"Traceplot of b"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Homework3_VAW_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\hypertarget{question-2}{%
+\section{Question 2}\label{question-2}}
+
+Specify a reasonable prior distribution for the following situations.
+
+\hypertarget{question-2a.}{%
+\section{Question 2a.}\label{question-2a.}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\tightlist
+\item
+  Your data are Bernoulli distributed, with shared probability of
+  success p.~Your goal for a prior distribution on p is that your prior
+  is vague, giving equal probability for any valid value for p.~
+\end{enumerate}
+
+\hypertarget{answer}{%
+\section{answer}\label{answer}}
+
+p \textasciitilde{} Beta(1,1) where p is the probability of success in a
+Bernoulli trial, and the parameters of the Beta distribution are both
+equal to 1. This prior has a simple closed-form expression for the
+posterior distribution, which is also a Beta distribution with updated
+parameters that depend on the number of successes and failures in the
+data.
+
+\hypertarget{question-2b.}{%
+\section{Question 2b.}\label{question-2b.}}
+
+Your data are Bernoulli distributed, with shared probability of success
+p.~Your goal for a prior distribution on p is to specify a prior
+distribution that has a 90\% probability that p is between 0 and 0.5,
+with a 10\% probability that p is greater than 0.5. \# answer Beta(a,b)
+where a and b are chosen such that 90\% of the prior probability mass
+falls in the interval {[}0,0.5{]} and 10\% of the mass falls in the
+interval (0.5,1{]}.
+
+One way to achieve this is to set a = 0.9 and b = 1.8, which corresponds
+to a prior mean of 0.33 and a prior variance of 0.023. This choice of
+parameters gives a prior probability of 0.9 that p is between 0 and 0.5,
+and a prior probability of 0.1 that p is greater than 0.5.
+
+The Beta(a,b) prior distribution has a probability density function that
+is proportional to p\^{}(a-1) * (1-p)\^{}(b-1).
+
+\hypertarget{question-2c.}{%
+\section{Question 2c.}\label{question-2c.}}
+
+Your data are Bernoulli distributed, with shared probability of success
+p.~Your goal for a prior distribution on p is to specify a prior
+distribution that has a 50\% probability that p is exactly 0, and a 50\%
+probability that p is somewhere between 0 and 1, with equal probability
+given. Normal? \# answer a mixture distribution that assigns 50\%
+probability to a point mass at 0 and 50\% probability to a continuous
+uniform distribution on the interval {[}0,1{]}. f(p) = 0.5 * delta(0) +
+0.5 * U(0,1) where delta(0) represents a point mass at 0 and U(0,1)
+represents a uniform distribution on the interval {[}0,1{]}.
+
+Alternatively, you can use a truncated normal distribution as a prior
+for p here. You can set the mean of the normal distribution to be less
+than zero to ensure that the prior assigns a 50\% probability to p being
+exactly 0. The variance of the normal distribution can be chosen to
+control the spread of the prior. Finally, you can truncate the normal
+distribution at 0 and 1 to ensure that the prior assigns equal
+probability to p being between 0 and 1.
+
+\hypertarget{question-2d.}{%
+\section{Question 2d.}\label{question-2d.}}
+
+Your data are classic linear regression data, with response and
+predictor variables. The regression parameter \beta for one parameter of
+interest has been well studied in the literature. Specify a prior for
+this distribution which allows for any real number, but which has a 95\%
+prior probability of being between -0.2 and -0.1. \# answer empirical
+bayes w. normal prior A normal distribution with mean -0.15 and a chosen
+sd from the literature would allow for any real number Ex: normal
+distribution with mean -0.15 and standard deviation 0.05, which would
+give a 95\% prior probability of being between -0.2 and -0.1.
+
+\hypertarget{question-2e.}{%
+\section{Question 2e.}\label{question-2e.}}
+
+\begin{verbatim}
+Your data come from a physical process where you know that your parameter must be between 0 and 2.  A previous study estimated the parameter as being very close to 2.  Specify a prior that respects the required physical constraints, and also places a 75% probability that the parameter is between 1.8 and 2. 
+\end{verbatim}
+
+\hypertarget{answer-1}{%
+\section{answer}\label{answer-1}}
+
+\begin{verbatim}
+a beta distribution with parameters alpha = 4 and beta = 1.25 would have a mean of 0.76 and a mode of 0.94, with 75% of the distribution falling between 1.8 and 2.
+\end{verbatim}
+
+\end{document}
