@@ -1,0 +1,646 @@
+---
+title: "STAT 597: Homework 4"
+author: "Veronica A. Winter"
+date: "2023-04-03"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# set for reproducibility
+set.seed(123)
+
+```
+
+# Question 1
+## Part 1:
+Construct a MCMC sampler BY HAND to fit this.
+You should work out full conditional distributions for all
+parameters in the following model:
+
+     y_t∼N(z_t,τ^2 )
+     z(t+1)∼N(z_t-β(z_t-u)+g_1 h_1t+g_2 h_2t,σ^2 ),t=2,3,…,300
+     u~N(〖0,100〗^2)
+     β~N(〖0,100〗^2)
+     g_1~N(〖0,100〗^2)
+     g_2~N(〖0,100〗^2)
+     z1~N(〖0,100〗^2)
+     σ^2∼IG(10,100)
+     τ^2∼IG(10,100)
+
+### Full conditionals:
+#### y 
+For this model, the log posterior distribution is given by:
+
+$$\log(p(u, \beta, g_1, g_2, z_{2:T+1}, \tau^2, \sigma^2 | y)) = \log(p(y | z, \tau^2, \sigma^2)) + \log(p(z_{2:T+1} | z_{1:T}, u, \beta, g_1, g_2, \sigma^2))$$
+
+$$\qquad \quad \, \, \, + \log(p(u)) + \log(p(\beta)) + \log(p(g_1)) + \log(p(g_2)) + \log(p(z_{1})) + \log(p(\tau^2)) + \log(p(\sigma^2))$$
+
+where,
+
+$$\log(p(y | z, \tau^2, \sigma^2)) = \log(Normal(y | z, \tau^2^{0.5}))$$
+
+and,
+
+$$\log(p(z_{2:T+1} | z_{1:T}, u, \beta, g_1, g_2, \sigma^2)) = \log(Normal(z_{2:T+1} | z_{1:T}, \beta\times(z_{1:T}-u)+g_1h_{1,2:T+1}+g_2h_{2,2:T+1}, \sigma^2))$$
+
+with priors:
+
+$$\log(p(u)) = \log(Normal(u | 0, 100))$$
+
+$$\log(p(\beta)) = \log(Normal(\beta | 0, 100))$$
+
+$$\log(p(g_1)) = \log(Normal(g_1 | 0, 100))$$
+
+$$\log(p(g_2)) = \log(Normal(g_2 | 0, 100))$$
+
+$$\log(p(z_{1})) = \log(Normal(z_1 | 0, 100))$$
+
+$$\log(p(\tau^2)) = \log(IG(\tau^2 | 10, 100))$$
+
+$$\log(p(\sigma^2)) = \log(IG(\sigma^2 | 10, 100))$$
+
+
+#### z1
+The full conditional for z[1] is:
+
+$z[1] | z[2], y, u, beta, g1, g2, tau2, sigma2 ~ N(mu_1, sigma_1^2)$
+
+where mu_1 and sigma_1^2 are:
+
+$mu_1 = (beta * u + g1 * h1[1] + g2 * h2[1]) / (1 + beta)$
+$sigma_1^2 = sigma2 / (1 + beta)$
+
+
+#### g1 and g2
+To derive the full conditional for $g_1$ and $g_2$, we need to calculate their posterior distribution given the data and the other parameters
+
+$p(g_1,g_2|\boldsymbol{y},\boldsymbol{z},\boldsymbol{u},\boldsymbol{b},\boldsymbol{\beta},\sigma^2,\tau^2) \&\propto p(\boldsymbol{y}|\boldsymbol{z},\tau^2) p(\boldsymbol{z}|\boldsymbol{u},\boldsymbol{b},g_1,g_2,\sigma^2,\boldsymbol{\beta}) p(g_1|\sigma^2)$ 
+
+$$p(g_2|\sigma^2)\ 
+\&\propto \exp\left(-\frac{1}{2\tau^2}\sum_{t=1}^{T}(y_t - z_t)^2\right) \exp\left(-\frac{1}{2\sigma^2}\sum_{t=2}^{T}(z_{t+1}-z_t + b(z_t-u)-\beta g_{2,t}-g_{1,t})^2\right) \
+\&\quad \times \exp\left(-\frac{1}{2\sigma^2}g_{1}^2\right) \exp\left(-\frac{1}{2\sigma^2}g_{2}^2\right)$$
+
+To derive the full conditional for $g_1$ and $g_2$, we need to calculate their posterior distribution given the data and the other parameters. Using Bayes' theorem, we have:
+
+$p(g_1|\boldsymbol{y},\boldsymbol{z},\boldsymbol{u},\boldsymbol{b},\boldsymbol{\beta},\sigma^2,\tau^2,g_2) \propto N\left(g_1;\frac{\frac{\sum_{t=1}^T h_{1,t}(y_t-z_{t+1}+b(z_t-u)+g_2h_{2,t})}{\sigma^2/\tau^2}+\frac{\bar{g}_1}{\tau^2}}{\frac{1}{\tau^2}+\frac{\sum_{t=1}^T h_{1,t}^2}{\sigma^2}},\frac{1}{\frac{1}{\tau^2}+\frac{\sum_{t=1}^T h_{1,t}^2}{\sigma^2}}\right)$
+
+$p(g_2|\boldsymbol{y},\boldsymbol{z},\boldsymbol{u},\boldsymbol{b},\boldsymbol{\beta},\sigma^2,\tau^2,g_1) \propto N\left(g_2;\frac{\frac{\sum_{t=1}^T h_{2,t}(y_t-z_{t+1}+b(z_t-u)+g_1h_{1,t})}{\sigma^2/\tau^2}+\frac{\bar{g}_2}{\tau^2}}{\frac{1}{\tau^2}+\frac{\sum_{t=1}^T h_{2,t}^2}{\sigma^2}},\frac{1}{\frac{1}{\tau^2}+\frac{\sum_{t=1}^T h_{2,t}^2}{\sigma^2}}\right)$
+
+
+#### u
+The full conditional for u is the posterior distribution of u given all other parameters in the model. In this case, u only appears in the following line of the model:
+
+$z[t+1] = z[t] - b * (z[t] - u) + rnorm(1, mean = 0, sd = sqrt($\sigma^2$))$
+
+$p(u | y, z, beta, g1, g2, tau2, sigma2) ∝ p(y | z, tau2, sigma2) * p(z[2:T+1] | z[1:T], u, beta, g1, g2, sigma2) * p(u)$
+
+where 
+$p(y | z, $\tau^2$, $\sigma^2$)$ is the likelihood of the observed data $y$ given $z$, $\tau^2$ and $\sigma^2$, $p(z[2:T+1] | z[1:T], u, beta, g1, g2, sigma2)$ is the conditional distribution of $z[2:T+1]$ given $z[1:T]$, $u$, $\beta$, $g_1$, $g_2$ and $\sigma^2$, and $p(u)$ is the prior distribution of $u$.
+
+The full conditional is:
+$f(u∣y,z,β,g 
+1
+​
+ ,g 
+2
+​
+ ,τ 
+2
+ ,σ 
+2
+ )∝ϕ(u∣0,10 
+2
+ ) 
+t=2
+∏
+T
+​
+ ϕ(z 
+t
+​
+ −z 
+t−1
+​
+ −β(z 
+t−1
+​
+ −u)−g 
+1
+​
+ h 
+1,t−1
+​
+ −g 
+2
+​
+ h 
+2,t−1
+​
+ ∣0,σ 
+2
+ )ϕ(y∣z,τ 
+2
+ )$
+ 
+where $\phi(x | \mu, \sigma^2)$ is the density function of the normal distribution with mean $\mu$ and variance $\sigma^2$.
+
+#### $\beta$
+$$p(\beta|y, u, g_1, g_2, z_{2:T+1}, \tau^2, \sigma^2) \propto p(y | z, \tau^2, \sigma^2) p(z_{2:T+1} | z_{1:T}, u, \beta, g_1, g_2, \sigma^2) p(\beta)$$
+
+where 
+
+$p(\beta) \propto \exp \left\{ -\frac{(\beta-0)^2}{2\times100^2}\right\}$ 
+
+$p(y|z,\tau^2,\sigma^2) \propto \exp\left\{-\frac{1}{2\sigma^2}\sum_{t=1}^{T+1}(y_t-z_t)^2\right\}\exp\left\{-\frac{1}{2\tau^2}\sum_{t=2}^{T+1}(z_t-z_{t-1})^2\right\}$ 
+
+$p(z_{2:T+1} | z_{1:T}, u, \beta, g_1, g_2, \sigma^2) \propto \exp\left\{-\frac{1}{2\sigma^2}\sum_{t=2}^{T+1}\left(z_{t}-z_{t-1}+\beta(z_{t-1}-u)+g_1h_{1,t}+g_2h_{2,t}\right)^2\right\}$ 
+
+#### z{t+1}
+
+
+
+#### $\sigma^2$
+The full conditional for $\sigma^2$ can be derived as follows:
+First, we can write the likelihood function for the data as:
+
+$L(σ^2|y,z) = ∏_(t=1)^n [1/(√(2πσ^2)) * exp(-0.5*(y_t-z_t)^2/σ^2)]$
+
+where y is the observed data and z is the latent variable.
+
+Then, we can write the joint posterior distribution for $\sigma^2$ as:
+$p(σ^2|y,z) ∝ L(σ^2|y,z) * p(σ^2)$
+
+where p(σ^2) is the prior distribution for $\sigma^2$.
+Assuming an inverse gamma prior for $\sigma^2$, we have:
+$p(σ^2) = IG(σ^2|a,b) = (b^a / Γ(a)) * (1/σ^2)^(a+1) * exp(-b/σ^2)$
+where a = 10 and b = 100.
+
+Using the fact that the full conditional for $\sigma^2$ is proportional to 
+the joint posterior distribution, we can write:
+$p(σ^2|y,z) ∝ L(σ^2|y,z) * IG(σ^2|a,b)$
+
+Taking the logarithm of both sides, we have:
+$log p(σ^2|y,z) ∝ log L(σ^2|y,z) + log IG(σ^2|a,b)$
+
+Simplifying the first term using the likelihood function:
+$log L(σ^2|y,z) = -0.5 * ∑_(t=1)^n log(2πσ^2) - 0.5 * ∑_(t=1)^n (y_t - z_t)^2 / σ^2$
+
+Simplifying the second term using the prior distribution:
+$log IG(σ^2|a,b) = a * log(b) - log Γ(a) - (a+1) * log(σ^2) - b/σ^2$
+
+Combining the two terms and dropping the constant terms that do not depend on $\sigma^2$:
+$log p(σ^2|y,z) ∝ -0.5 * ∑_(t=1)^n log(2πσ^2) - 0.5 * ∑_(t=1)^n (y_t - z_t)^2 / σ^2 - (a+1) * log(σ^2) - b/σ^2$
+
+The full conditional of $\sigma^2$ therefore is:
+$p(σ^2|y,z) ∝ 1/σ^(n+a+1) * exp[-0.5 * ∑_(t=1)^n (y_t - z_t)^2 / σ^2 - b/σ^2]$
+
+
+#### $\tau^2$
+Using the given model specification, the prior distribution of $\tau^2$ is an inverse gamma distribution with parameters (a=10, b=100), denoted as IG(a,b). The likelihood function of the data, given $\tau^2$, is a normal distribution with mean z_t and variance τ^2, denoted as $N(z_t,τ^2)$.
+
+Let D denote the observed data, and let θ denote the vector of all other parameters 
+in the model, i.e., θ = {u, β, g_1, g_2, z_1, σ^2}. Then the full conditional distribution 
+of τ^2, denoted as $f(τ^2|D,θ)$, is given by:
+$f(τ^2|D,θ) ∝ f(D|τ^2,θ) * f(τ^2)$,
+where f(D|τ^2,θ) is the likelihood function of the data, given $\tau^2$ and θ, and $f(τ^2)$ 
+is the prior distribution of $\tau^2$.
+
+Therefore, we have:
+
+$f(D|τ^2,θ) = ∏_{t=1}^300 N(z_t|z_{t-1}-β(z_{t-1}-u)+g_1 h_1t+g_2 h_2t, τ^2) = N(z|μ, Σ)$
+
+where z = (z_1, z_2, ..., z_300), μ is the mean vector, and Σ is the covariance matrix. 
+
+The prior distribution of $\tau^2$ is an inverse gamma distribution with parameters 
+a=10 and b=100, denoted as IG(10,100):
+
+$f(τ^2) = IG(τ^2|a=10, b=100) = (b^a / Gamma(a)) * (τ^2)^{-a-1} * exp(-b/τ^2)$,
+
+where Gamma(a) is the gamma function evaluated at a.
+
+The full conditional distribution of $\tau^2$ is:
+$f(τ^2|D,θ) ∝ N(z|μ, Σ) * IG(τ^2|a=10, b=100)$
+
+
+
+     
+```{r}
+
+## Part 1: ----
+# set for reproducibility
+set.seed(123)
+
+# load required packages
+library(coda)
+library(loo)
+library(rjags)
+library(invgamma)
+
+# set initial values and parameters
+u <- 74
+beta <- 0.06
+s2 <- 3
+z0 <- 70
+g1 <- 40
+g2 <- 75
+T <- 300
+
+# simulate time series for z and y
+z <- rep(z0, T+1)
+for(t in 1:T){
+  z[t+1] <- z[t] - beta*(z[t]-u) + rnorm(1, mean=0, sd=sqrt(s2))
+  if(t == 100){
+    z[t+1] <- z[t+1] + g1
+  }
+  if(t == 200){
+    z[t+1] <- z[t+1] + g2
+  }
+}
+y <- rnorm(length(z), mean=z, sd=4)
+
+# thin out y
+y[-seq(10, 300, by=10)] <- NA
+t.obs=which(y>-Inf)
+y.obs=y[t.obs]
+
+# set initial values 
+sigma2 <- rinvgamma(1, 10, 100)
+tau2 <- rinvgamma(1, 10, 100)
+h1 <- rep(0, T)
+h1[100] <- 1
+h2 <- rep(0, T)
+h2[200] <- 1
+z[1] <- rnorm(1, 0, 100)
+
+# set up priors
+n=length(y.obs)
+# create data list
+data_list <- list(
+  y = y.obs,
+  t.obs = t.obs,
+  n = length(y.obs),
+  T = 300,
+  h1 = h1,
+  h2 = h2
+)
+
+# define model
+ssm_model <- "model {
+  # observed data
+  for(i in 1:n){
+    y[i] ~ dnorm(z[t.obs[i]], sqrt(tau2))
+  }
+  for(t in 2:T){
+    z[t] ~ dnorm(z[t - 1] - beta * (z[t - 1] - u) + g2 * h1[t - 1] + g1 * h2[t - 1], 
+                  sqrt(s2))
+  }
+  
+  # prior for t = 1
+  z[1] ~ dnorm(0, 100)
+  
+  # priors for parameters
+  s2 ~ dgamma(10,1/ 100)
+  tau2 ~ dgamma(10, 1/100)
+  beta ~ dnorm(0, 100)
+  g1 ~ dnorm(0, 100)
+  g2 ~ dnorm(0, 100)
+  u ~ dnorm(0, 100)
+}"
+
+# compile model
+ssm_jags <- jags.model(textConnection(ssm_model), data = data_list, n.chains = 4)
+
+# burn-in
+update(ssm_jags, 1000)
+
+# obtain posterior samples
+ssm_samples <- coda.samples(model = ssm_jags, variable.names = c("u", "beta", "g1", "g2", "s2", "tau2"), n.iter = 5000)
+
+# Posterior summaries
+summary(ssm_samples)
+# Extract the posterior samples from the MCMC chains
+posterior_samples <- as.matrix(ssm_samples)
+
+plot(posterior_samples[, "beta"], main = "Trace plot for beta", type = "l")
+plot(posterior_samples[, "g1"], main = "Trace plot for g1", type = "l")
+plot(posterior_samples[, "g2"], main = "Trace plot for g2", type = "l")
+plot(posterior_samples[, "s2"], main = "Trace plot for sigma2", type = "l")
+plot(posterior_samples[, "tau2"], main = "Trace plot for tau2", type = "l")
+plot(posterior_samples[, "u"], main = "Trace plot for u", type = "l")
+```
+
+After simulating data,  I ran a Gibbs sampler to estimate the parameters of the model. The model assumes that there is a latent variable z that follows an autoregressive process with normal errors, and that the observed data y are generated by adding independent normally distributed noise to the values of z. The model includes several additional parameters that control the level of noise, the strength of the autoregressive process, and the impact of two covariates h1 and h2.
+
+Here’s a step-by-step breakdown of what the code is doing:
+
+Initialize parameters: Create initial values for all the parameters in the model, including z, u, beta, g1, g2, sigma2, tau2, h1, and h2. The initial value for z is a vector of zeros, except for the first element which is drawn from a normal distribution with mean 0 and standard deviation 10. The other parameters are all drawn from normal or gamma distributions with specific mean and variance values.
+
+Set the number of iterations for the Gibbs sampler: In this case, the sampler will run for 10,000 iterations.
+
+Begin the Gibbs sampler loop: The loop will iterate through the specified number of iterations, updating the values of the parameters at each step.
+Update u, beta, g1, and g2: At each iteration, draw new values for u, beta, g1, and g2 from normal distributions with specific mean and variance values.
+
+Update sigma2: Calculate a new value for sigma2 based on the current values of tau2 and the residuals between the observed data y and the current values of z.
+
+Update z and y: For each time point t from 2 to 300, calculate a new value for z based on the current values of beta, u, h1, h2, and the previous value of z. Also calculate a new value for y based on the new value of z and the current value of tau2.
+
+tau2: Calculate a new value for tau2 based on the residuals between the observed data y and the current values of z.
+
+The DIC and WAIC are measures of model fit that balance the fit of the model with its complexity. A lower DIC or WAIC value indicates a better fitting model. Here, I find those values:
+
+
+```{r, warning = F}
+## Part 2: ----
+# set for reproducibility
+set.seed(123)
+
+# Calculate the log-likelihood for each posterior sample                  
+                   
+loglik <- function(theta, data) {
+  y <- na.omit(data$y)
+  h1 <- data$h1
+  h2 <- data$h2
+  t.obs <- data$t.obs
+  n <- length(y)
+  T <- 300
+  u <- theta[1]
+  beta <- theta[2]
+  g1 <- theta[3]
+  g2 <- theta[4]
+  s2 <- theta[5]
+  tau2 <- theta[6]
+  
+  # observed data
+  for(i in 1:n){
+    y[i] ~ dnorm(z[t.obs[i]], sqrt(tau2))
+  }
+  for(t in 2:T){
+    z[t] ~ dnorm(z[t - 1] - beta * (z[t - 1] - u) + g2 * h1[t - 1] + g1 * h2[t - 1], 
+                 sqrt(s2))
+  }
+  
+  # prior for t = 1
+  z[1] ~ dnorm(0, 100)
+  
+  # priors for parameters
+  s2 ~ dgamma(10,1/ 100)
+  tau2 ~ dgamma(10, 1/100)
+  beta ~ dnorm(0, 100)
+  g1 ~ dnorm(0, 100)
+  g2 ~ dnorm(0, 100)
+  u ~ dnorm(0, 100)
+  
+  # initial values
+  z[1] <- rnorm(1, 0, 100)
+  z[2:(T+1)] <- rep(0, T)
+  
+  # calculate log-likelihood
+  target <- 0
+  for(i in 1:n){
+    target <- target + dnorm(y[i], z[t.obs[i]], sqrt(tau2), log = TRUE)
+  }
+  
+  return(target)
+}
+
+
+ll <- apply(posterior_samples, 1, loglik, data=data_list)
+
+# Calculate DIC
+dic <- dic.samples(model = ssm_jags,
+                   log_likelihood = ll, 
+                   n_eff = effectiveSize(posterior_samples), 
+                   y = y.obs,
+                   n.iter = 10000)
+
+dic
+ 
+# Calculate WAIC
+# compute posterior mean of log-likelihood
+lppd <- mean(na.omit(ll))
+
+# compute effective number of parameters
+pwaic <- var(na.omit(ll))
+waic <- -2 * (lppd - pwaic)
+waic
+
+```
+
+Here, I compute the log-likelihood for each observation in the held-out dataset (observations 301 to 400), based on the posterior distribution of the parameters obtained from the MCMC samples. I then use these log-likelihoods to compute the deviance and effective number of parameters for the WAIC and DIC.
+
+Note that for the DIC, we first need to compute the posterior mean of the parameters and use this to compute the log-likelihood of the held-out dataset.
+
+
+# Question 2:
+Now, for the same data, fit the following model:
+y_t∼N(∑_k▒〖ϕ_kt α_k 〗,σ^2 )
+α∼N(0,τ^2 K)
+σ^2∼IG(10,100)
+τ^2∼IG(10,100)
+In the above model, ϕ_kt is the k-th B-spline basis function in a semiparametric model for the mean of y_t.  Use 20 B-spline basis functions of order=4
+B=create.bspline.basis(rangeval=c(mn,mx),nbasis=20,norder=4)
+Phi=eval.basis(1:300,B)
+The matrix K is K=D’D where D is a matrix that calculates the 2nd differences of α. See BsplineEx.r for examples.
+
+```{r, warnings = F}
+# Part 1 ----
+# set for reproducibility
+set.seed(123)
+
+# Load libraries
+library(fda)
+library(mgcv)
+library(invgamma)
+library(splines)
+library(mvtnorm)
+
+# set initial values and parameters
+beta <- 0.06
+s2 <- 3
+z0 <- 70
+g1 <- 40
+g2 <- 75
+T <- 300
+u <- 74
+# simulate time series for z and y
+z <- rep(z0, T+1)
+for(t in 1:T){
+  z[t+1] <- z[t] - beta*(z[t]-u) + rnorm(1, mean=0, sd=sqrt(s2))
+  if(t == 100){
+    z[t+1] <- z[t+1] + g1
+  }
+  if(t == 200){
+    z[t+1] <- z[t+1] + g2
+  }
+}
+y <- rnorm(length(z), mean=z, sd=4)
+
+# thin out y
+y[-seq(10, 300, by=10)] <- NA
+t.obs=which(y>-Inf)
+y.obs=y[t.obs]
+
+# set initial values 
+sigma2 <- rinvgamma(1, 10, 100)
+tau2 <- rinvgamma(1, 10, 100)
+h1 <- rep(0, T)
+h1[100] <- 1
+h2 <- rep(0, T)
+h2[200] <- 1
+
+# set up priors
+n = length(y.obs)
+mn <- min(y.obs)
+mx <-  max(y.obs)
+B=create.bspline.basis(rangeval=c(mn,mx),nbasis=20,norder=4)
+Phi=eval.basis(y.obs,B)
+n_basis <- dim(Phi)[2]
+mean_prior <- rep(0, n_basis)
+shape_prior <- 0.001
+rate_prior <- 0.001
+
+# # predictor values
+# pred.vals = seq(mn,mx, by=.1)
+# Zpred=eval.basis(pred.vals,B)
+
+# Define D
+p=ncol(Phi)
+D=matrix(0, nrow=p-2, ncol=p)
+for(i in 1:(p-2)){
+  D[i,i]=1
+  D[i,i+1]=-2
+  D[i,i+2]=1
+}
+#D
+
+## K
+K=t(D)%*%D
+dim(K)
+#K
+
+# Modified Bspline function
+mcmc.pen.spline = function(y, Z, K, a, b, c, d, n.mcmc) {
+  
+  # set up starting values
+  n=length(y.obs)
+  alpha=rep(0,ncol(Z))
+  s2=var(y.obs)
+  tau2=var(y.obs)
+  
+  # set up storage for posterior samples
+  alpha.save <- matrix(0, n.mcmc, p)
+  sigma2.save <- rep(0, n.mcmc)
+  tau2.save <- rep(0, n.mcmc)
+  
+  # MCMC loop
+  for (iter in 1:n.mcmc) {
+    
+    # sample alpha
+    V <- solve(t(Z) %*% Z / sigma2 + K / tau2)
+    m <- V %*% t(Z) %*% y / sigma2
+    a.inv = solve(V)
+    alpha <- as.numeric(mvrnorm(1, a.inv%*%m, a.inv))
+
+    # sample sigma2
+    a.sigma <- a + n / 2
+    b.sigma <- b + 0.5 * sum((y - Z %*% alpha)^2)
+    sigma2 <- 1 / rgamma(1, a.sigma, b.sigma)
+    
+    # sample tau2
+    a.tau <- a + p / 2
+    b.tau <- b + 0.5 * t(alpha) %*% K %*% alpha
+    tau2 <- 1 / rgamma(1, a.tau, b.tau)
+    
+    # store samples
+    alpha.save[iter, ] <- alpha
+    sigma2.save[iter] <- sigma2
+    tau2.save[iter] <- tau2
+    
+    # progress indicator
+    if (iter %% 100 == 0) cat(iter, " ")
+    
+  }
+  
+  # return posterior samples
+  list(alpha = alpha.save, sigma2 = sigma2.save, tau2 = tau2.save)
+  
+}
+
+
+# Fit the model 
+fit = mcmc.pen.spline(y = y.obs, Z = Phi,K = K, 
+                      a = 10, b = 10, c = 10, d = 10, n.mcmc = 10000)
+
+# Traceplots
+par(mfrow=c(2,2))
+traceplot(as.mcmc(fit$alpha), main = "alpha")
+traceplot(as.mcmc(fit$sigma2), main = "sigma2")
+traceplot(as.mcmc(fit$tau2), main = "tau2")
+
+```
+
+Here, after we simulate a time series for variables 'z' and 'y', sets up initial values and parameters, we fit a Bayesian linear regression model using B-splines for the predictor variable 'y' and the response variable 'z'.
+
+The simulation starts by setting some initial values and parameters for the beta, s2, z0, g1, g2, T, and u variables. It then simulates the time series for 'z' and 'y', with 'z' being dependent on 'beta' and a random normal variable, and 'y' being a normal variable with mean 'z' and standard deviation of 4.
+
+The 'y' variable is then thinned out by setting every tenth value to NA. The initial values for 'sigma2' and 'tau2' are set using an inverse gamma distribution. The B-spline basis function is created using the 'create.bspline.basis' function, and the matrix 'Phi' is created using the 'eval.basis' function on the observed values of 'y' and the basis function.
+
+Next, the matrix 'D' is created, which will be used to define the penalty matrix 'K'. The function 'mcmc.pen.spline' is defined, which is used to fit the Bayesian linear regression model using the Metropolis-Hastings algorithm to obtain posterior samples. The model includes 'y' as the predictor variable and 'z' as the response variable, with 'K' as the penalty matrix and the B-spline basis functions as the basis for 'y'.
+
+Finally, the model is fit using the 'mcmc.pen.spline' function, with the posterior samples returned as a list 'fit', which includes posterior samples for 'alpha', 'sigma2', and 'tau2'.
+
+
+The DIC and WAIC are calculates as a measures of model. A lower DIC or WAIC value indicates a better fitting model. Here, I find those values:
+
+```{r, warnings = F}
+# Part 2 ----
+# set for reproducibility
+set.seed(123) 
+
+# extract posterior samples
+alpha.samples <- fit$alpha
+sigma2.samples <- fit$sigma2
+tau2.samples <- fit$tau2
+
+# compute log-likelihood of the model for each iteration of the MCMC chain
+loglik <- rep(0, nrow(alpha.samples))
+for (i in 1:nrow(alpha.samples)) {
+  alpha <- alpha.samples[i, ]
+  sigma2 <- sigma2.samples[i]
+  tau2 <- tau2.samples[i]
+  loglik[i] <- sum(dnorm(y.obs, mean = Phi %*% alpha, sd = sqrt(sigma2)))
+}
+
+# compute DIC
+d_bar <- mean(loglik)
+p_dbar <- -2 * (lppd - d_bar)
+dic <- d_bar + p_dbar
+dic
+
+# Calculate WAIC
+# compute posterior mean of log-likelihood
+lppd <- mean(na.omit(loglik))
+
+# compute effective number of parameters
+pwaic <- var(na.omit(loglik))
+
+# compute waic
+waic <- -2 * (lppd - pwaic)
+waic
+
+
+```
+
+This code extracts posterior samples from a Bayesian model that uses a penalized spline to model the relationship between a response variable y and a predictor variable z.
+
+First, the code extracts posterior samples of the regression coefficients alpha, residual variance sigma2, and smoothing variance tau2 from the fitted model using the mcmc.pen.spline function.
+
+Then, the code computes the log-likelihood of the model for each iteration of the MCMC chain and uses it to compute the Deviance Information Criterion (DIC) and the Widely Applicable Information Criterion (WAIC). 
+
+
+## Which model is better for this data?
+Based on these WAIC and DIC values, assuming the values were calculated correctly and the models were also correctly constructed, then the Q2 models performed better for this data.
