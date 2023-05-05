@@ -1,0 +1,125 @@
+---
+title: "Bayesian project proposal"
+author: "Veronica A. Winter"
+date: "2023-03-31"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Creating a simple IPM to understand Wild Turkey Population Dynamics
+
+Understanding species population dynamics is critical to make informed decisions for management. 
+Population dynamics refers to the variation of the population size over time and is the result of losses and gains to the population. Contemporary statistical methods are available to characterize and clarify demographic processes occurring in populations. One such method is the integrated population model (IPM) which are statistical models that combine information from multiple data sources to estimate demographic and ecological parameters for a population of interest. Integrated population models (IPMs) represent the single, unified analysis of population count data and demographic data. In ecology, IPMs are commonly used to estimate population size, growth rate, survival, and other demographic parameters, as well as to identify environmental and demographic factors that may be affecting population dynamics.
+
+An IPM allows us to combine multiple data sources into a single statistical model that estimates population size, growth rate, and other demographic parameters while accounting for the influence of environmental factors. This modelling framework is quite novel and can be implemented within the frequentest or the Bayesian framework. By doing so, we can obtain more accurate estimates of population size and other demographic parameters, as well as gain insights into the factors that may be affecting population dynamics.
+
+### An example IPM:
+
+```{r, warning=FALSE, echo = T}
+library(rjags)
+library(coda)
+
+# Simulated data
+set.seed(123)
+N_obs <- c(500, 350, 200, 125, 75)  # observed population sizes
+r <- 0.5  # recruitment rate
+
+# IPM model in JAGS
+  model_string <- "
+model {
+  # Priors
+  N[1] ~ dbinom(0, 1000)  # uniform prior for initial population size
+  p ~ dbeta(1, 1)  # non-informative beta prior for survival probability
+
+  # Transition model
+  for (t in 1:4) {
+    N[t+1] ~ dpois(p*N[t])  # poisson model for population dynamics
+  }
+
+  # Likelihood
+  for (t in 2:6) {
+    N_obs[t-1] ~ dpois(N[t-1]*r)  # Poisson likelihood for observed population sizes
+  }
+}
+"
+
+# Data list
+data_list <- list(N=N_obs, r=r)
+
+# Create the model object
+model <- jags.model(textConnection(model_string), data=data_list)
+
+# Specify the parameters to monitor
+params <- c("N", "p", "r")
+
+# Set the number of iterations and burn-in
+n_iter <- 1000
+n_burnin <- 500
+
+# Run the model
+samples <- jags.samples(model, params, n.iter=n_iter, n.burnin=n_burnin)
+# Burn-in and sampling
+update(model, 1000)
+samples <- coda.samples(model, variable.names=params, n.iter=5000)
+
+# Summarize the posterior distributions
+summary(samples)
+
+# Calculate the posterior means and credible intervals
+post_means <- apply(samples[[1]], 2, mean)
+post_cis <- t(apply(samples[[1]], 2, function(x) quantile(x, c(0.025, 0.975))))
+
+# Print the results
+cat("Posterior mean of p:", post_means[6], "\n")
+cat("95% credible interval for p:", post_cis[6], "\n")
+
+# Create trace plots
+plot(samples[, "p"], main = "Trace plot for p")
+```
+
+In the case of wild turkey *(Meleagris gallopavo silvestris)*, there is a growing concern across the northeastern U.S. of a possible decline in turkey populations. In Pennsylvania, wild turkey population management strategies have been based on maintaining a statewide spring season that open coincides with the peak of nest incubation, while also maintaining a conservation fall harvest in areas that can withstand hen harvest. There are inherent competing objectives being set for wild turkey in Pennsylvania (PA), such as maximize both spring and fall hunting opportunity as well as population growth. Additionally, while wild turkey population dynamics have been studied across the northeastern US, there are opposing views on factors that contribute to their population growth. For example, studies present varying opinions on whether wild turkey populations are influenced by density-dependent or density-independent factors. Creating and implementing an adaptive framework that accounts for system uncertainty under multiple scenarios is ideal for optimal decision making with respect to some management objective.
+
+Wild turkey population dynamics are influenced by a variety of factors, including habitat quality, hunting pressure, disease, and predation. These factors can vary from region, and can have different impacts on turkey populations in different areas. Severe winter conditions and snow depth are a source of mortality in northeastern turkey populations. 
+
+Previously studies have utilized IPMs to understand population dynamics of turkey (Diefenbach 2022, in prep). The limitations with these studies have been their ability to account for uncertainty in the frequentest modeling framework. For example, priors are fixed here and generating confidence bounds is not feasible. A Bayesian update of this framework would allow for more flexible priors and credible intervals to propagate uncertainty, allowing for a model the mimics the biology of the system in a more accurate way.
+
+The aim of my first chapter is to develop a Bayesian IPM for monitoring population trends of wild Turkey in PA. The final model with utilize multiple datasets, such as telemetry data, harvest, and band-recovery data. This allows us to monitor the system and infer system behavior in a flexible, adaptable framework that can better account for biological and statistical uncertainty. 
+
+Data on males is more available than females in this syetem. Therefore, for this project, I will begin to develop a simple portion of this model, as demonstrated above, using Gobblers (adult males) and jakes (juvenile males) annually. 
+
+The model will be constructed as follows:
+<div align="center">
+$(Nad \sim binom(0,1))$
+
+$(Njuv \sim pois(0,1))$
+
+$(p \sim dbeta(1, 1))$
+
+$(Sad \sim unif(0,1))$
+
+$(Sjuv \sim unif(0,1))$
+
+$(f \sim pois(0,1))$
+
+$(\lambda\sim Exp(1))$
+
+</div>
+
+Where \(Nad\) is population size of adult males, \(Sad\) is survival of adult males, \(Njuv\)is population size of juvenile males and \(Sjuv\) is their survival, \(f\) is fecundity. Developing this simple IPM model will be foundation to the larger, more complex multi-season, sex, and age class IPM that will be part of my dissertation research.
+
+
+
+
+
+
+
+
+
+
