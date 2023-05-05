@@ -4,13 +4,13 @@ author: "V. Winter"
 date: "3/16/2023"
 output:
   word_document: default
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 
-**Note: I tried several different techniques for this homework, as is evident in each questions' respective answer).**
+**[Note: I tried a few different approaches for this homework, as is evident in each questions' respective answer.]**
 
 
 ```{r setup, include=FALSE}
@@ -159,15 +159,15 @@ plot(samples[,2], type="l", ylab="b", main="Traceplot of b")
 ### Explination:
 This code is implementing a Metropolis-Hastings algorithm for Bayesian inference of the parameters of a Poisson regression model.
 
-To start, the 'loglike' function defines the log-likelihood function of the Poisson regression model, 
+To start, the **loglike** function defines the log-likelihood function of the Poisson regression model, 
 taking in the parameters a and b, as well as the predictor variable x and the response variable y. 
 The function calculates the log-likelihood of the Poisson distribution with mean exp(a+b*x) and the observed values of y.
 
-The prior distribution is specified with a mean vector 'prior_mean' and a covariance matrix 'prior_var'. The proposal distribution is a multivariate normal distribution with mean and covariance matrix given by c(a, b) and 'proposal_var', respectively.
+The prior distribution is specified with a mean vector **prior_mean** and a covariance matrix **prior_var**. The proposal distribution is a multivariate normal distribution with mean and covariance matrix given by c(a, b) and **proposal_var**, respectively.
 
-The algorithm starts with initial values of a and b set to 0, and runs for a defined 'niter' iterations. At each iteration, it generates a proposal for a and b from the proposal distribution, and calculates the log-likelihoods and log-prior densities for the current and proposed values. It then calculates the log-acceptance ratio, which is used to accept or reject the proposal. If the proposal is accepted, the values of a and b are updated, and if it is rejected, the current values are retained.
+The algorithm starts with initial values of a and b set to 0, and runs for a defined **niter** iterations. At each iteration, it generates a proposal for a and b from the proposal distribution, and calculates the log-likelihoods and log-prior densities for the current and proposed values. It then calculates the log-acceptance ratio, which is used to accept or reject the proposal. If the proposal is accepted, the values of a and b are updated, and if it is rejected, the current values are retained.
 
-The algorithm saves the values of a and b at each iteration in a samples matrix. It also keeps track of the number of proposals accepted in accept, and updates the proposal distribution and covariance matrix every 'tune_interval' iterations based on the acceptance rate.
+The algorithm saves the values of a and b at each iteration in a samples matrix. It also keeps track of the number of proposals accepted in accept, and updates the proposal distribution and covariance matrix every **tune_interval** iterations based on the acceptance rate.
 
 This code utilizes a Shaby and Wells log adaptive tuning method, where the proposal distribution variance is adjusted during the MCMC based on the acceptance rate of the proposal. A low acceptance rate will result in the variance being decreased and a high acceptance rate results in the variance being increased.
 
@@ -188,10 +188,10 @@ a Beta distribution with updated parameters that depend on the number of success
 Your data are Bernoulli distributed, with shared probability of success p.  Your goal for a prior distribution on p is to specify a prior distribution that has a 90% probability that p is between 0 and 0.5, with a 10% probability that p is greater than 0.5. 
 
 ### answer
-Beta(a,b)
-where a and b are chosen such that 90% of the prior probability mass falls in the interval [0,0.5] and 10% of the mass falls in the interval (0.5,1].
+p ~ Beta(a, b)
+where a and b are chosen so that 90% of the prior probability mass falls in the interval [0, 0.5] and 10% of the mass falls in the interval (0.5, 1]. *[Q: Can this be done with Empirical Bayes?]*
 
-One way to achieve this is to set a = 0.9 and b = 1.8, which corresponds to a prior mean of 0.33 and a prior variance of 0.023. This choice of parameters gives a prior probability of 0.9 that p is between 0 and 0.5, and a prior probability of 0.1 that p is greater than 0.5.
+One option is to set a = 0.9 and b = 1.8.
 
 The Beta(a,b) prior distribution has a pdf that is proportional to p^(a-1) * (1-p)^(b-1). 
 
@@ -199,11 +199,11 @@ The Beta(a,b) prior distribution has a pdf that is proportional to p^(a-1) * (1-
 Your data are Bernoulli distributed, with shared probability of success p.  Your goal for a prior distribution on p is to specify a prior distribution that has a 50% probability that p is exactly 0, and a 50% probability that p is somewhere between 0 and 1, with equal probability given. 
 
 ### answer
-A mixture distribution ("spike and slap") that assigns 50% probability to a point mass at 0 and 50% probability to a continuous uniform distribution on the interval [0,1].
-	f(p) = 0.5 * delta(0) + 0.5 * U(0,1)
-where delta(0) represents a point mass at 0 and U(0,1) represents a uniform distribution on the interval [0,1].
+A mixture distribution ("spike and slab") that assigns 0.5 to a Bernoulli distribution and and 50% probability to a continuous uniform distribution on the interval [0,1].
+	f(p) = Bern(0.5)  + 0.5 * U(0,1)
+where Bern(0.5) represents a point mass at 0.5 and U(0,1) represents a uniform distribution on the interval [0,1].
 	
-Could you also use a truncated normal distribution? as a prior for p here. Where youset the mean of the normal distribution to be less than zero so that the prior assigns a 50% probability to p being exactly 0. The variance of the normal distribution can be chosen to control the spread of the prior, then truncating the normal distribution at 0 and 1 so the prior assigns equal probability to p being between 0 and 1. (maybe?)
+Could you also use a truncated normal distribution? as a prior for p here. Where you set the mean of the normal distribution to be less than zero so that the prior assigns a 50% probability to p being exactly 0. The variance of the normal distribution can be chosen to control the spread of the prior, then truncating the normal distribution at 0 and 1 so the prior assigns equal probability to p being between 0 and 1. (maybe?)
 	
 ## part d.
 Your data are classic linear regression data, with response and predictor variables. The regression parameter \beta for one parameter of interest has been well studied in the literature. Specify a prior for this distribution which allows for any real number, but which has a 95% prior probability of being between -0.2 and -0.1.
@@ -242,15 +242,16 @@ library(statmod)
 
 
 ```{r, warning=FALSE}
+# Remove any NAs that may cause issues down the line (looking at you y.lag[1])
+lagos <- na.omit(lagos)
 ## Create Indicator Vars
 lagos$ag=0
 lagos$ag[lagos$SurLand=="agricultural"] <- 1
 lagos$forest=0
 lagos$forest[lagos$SurLand=="forest"] <- 1
 
-## Format the data for 
+## Format the data
 df <- data.frame(
-  #int = rep(1,nrow(lagos)),
   log.tp = log(lagos$tp),
   log.sec = log(lagos$secchi),
   x = lagos$lon,
@@ -261,18 +262,24 @@ df <- data.frame(
   forest = lagos$forest
 )
 
+## Format the data for 
+df2 <- data.frame(
+  log.tp = df$log.tp,
+  log.sec = df$log.sec,
+  x_all = df$x + df$x2,
+  y_all = df$y + df$y2,
+  ag = df$ag,
+  forest = df$forest
+)
+
+
 # Set up response variable
 y.lag=lagos[,5]
-# There is an NA value here that I think is causing issues:
-y.lag[1]
-# Setting this to be the mean value (probably not correct)
-mean(y.lag)
-y.lag[1] <-  951.8362
 
 # Scale data frame
-x_scale <- scale(df)
+x_scale <- scale(df2)
 
-# Run RR mcmc using EH code
+# Run RR MCMC using EH code
 lagos.out = mcmc.lm.rr(y = y.lag, 
                        X = x_scale, 
                        n.mcmc = 10000,
@@ -286,7 +293,7 @@ lagos.out = mcmc.lm.rr(y = y.lag,
                       # adapting every i'th iteration
                       adapt.iter=100)
 
-## trace plots
+# Create trace plots
 par(mfrow=c(3,4))
 for(k in 2:ncol(lagos.out)){
   plot(lagos.out[,k],main=colnames(lagos.out)[k],type="l")
@@ -310,12 +317,12 @@ t(apply(lagos.out, 2, function(x) quantile(x, c(0.025, 0.975))))
 ```
 
 ### Explination:
-What I wanted this code to do was fit a linear regression model using MCMC to estimate the posterior distribution of the regression coefficients. The response variable is the log of the total nitrogen concentration (shown here as y.lag) in lake water. The predictor variables are the log of the total phosphorous concentration (log.tp), the log of the Secchi disk depth (log.sec), an indicator variable for whether the surrounding land is agricultural (ag), an indicator variable for whether the surrounding land is forested (forest), the longitude of the lake location (x), the latitude of the lake location (y), and the squared longitude and squared latitude (x2 and y2). The predictor vairables were scaled uring the 'scale' funciton.
+What I wanted this code to do was fit a linear regression model using MCMC to estimate the posterior distribution of the regression coefficients. The response variable is the log of the total nitrogen concentration (shown here as y.lag) in lake water. The predictor variables are the log of the total phosphorous concentration (log.tp), the log of the Secchi disk depth (log.sec), an indicator variable for whether the surrounding land is agricultural (ag), an indicator variable for whether the surrounding land is forested (forest), the longitude of the lake location (x), the latitude of the lake location (y), and the squared longitude and squared latitude (x2 and y2). The predictor vairables were scaled uring the **scale** funciton.
 
 The priors for the regression coefficients are a ridge regression prior for the coefficients associated with the predictor variables, and a vague Gaussian prior for the intercept. The ridge regression prior adds a penalty term to the likelihood function that shrinks the coefficients towards zero, which can help to prevent overfitting.
 
-I first tried using the package 'nimble' to specify and compile the model and run an MCMC using the 'nimbleMCMC' function. The MCMC algorithm was set to run for 20000 iterations, with the first 5000 iterations discarded as burn-in, and the remaining 15000 iterations used to estimate the posterior distribution of the regression coefficients. However, due to some compiling issues, this was scratched. 
-I then tried using the function given in the 'mcmc.lm.rr.r' file and was able to get this to successfully run. The posterior means and credible intervals for the parameters are then calculated using the apply and quantile functions.
+I first tried using the package **nimble** to specify and compile the model and run an MCMC using the **nimbleMCMC** function. The MCMC algorithm was set to run for 20000 iterations, with the first 5000 iterations discarded as burn-in, and the remaining 15000 iterations used to estimate the posterior distribution of the regression coefficients. However, due to some compiling issues, this was scratched. 
+I then tried using the function given in the **mcmc.lm.rr.r** file and was able to get this to successfully run. The posterior means and credible intervals for the parameters are then calculated using the apply and quantile functions.
 
 # Question 4
 
@@ -331,130 +338,89 @@ and report posterior means and 95% credible intervals of the mean number of call
 the “high” state which has rate (𝜆0 + 𝜆1).
 
 ## WHY MCMC:
-Given the data y and the model specified above, the joint posterior distribution of the parameters is:
+we can look at the conditional posterior distributions of these parameters given the data and other parameters in the model.
+Starting with 𝜆0, we have:
 
-𝑝(𝜆0,𝜆1,𝑝,𝑥1,...,𝑥𝑛|𝑦1,...,𝑦𝑛) ∝ 𝑝(𝜆0)𝑝(𝜆1)𝑝(𝑝)∏𝑖=1𝑛𝑝𝑜𝑖𝑠(𝑦𝑖|𝜆𝑡)𝑝(𝑥𝑖|𝑝)
+𝜆0 | 𝑦, 𝜆1, 𝑝 ∼ 𝐺𝑎𝑚𝑚𝑎(1 + 𝑛/2, 0.1 + ∑(𝑦𝑡 − 𝜆1𝑥𝑡)²/2)
 
-The problem is that the parameters 𝜆0 and 𝜆1 are coupled in the model through the expression for 𝜆𝑡. This means that it is not possible to directly sample from the conditional distributions 𝑝(𝜆0|𝜆1,𝑝,𝑥,𝑦) and 𝑝(𝜆1|𝜆0,𝑝,𝑥,𝑦), since the presence of 𝜆1 and 𝜆0 in 𝜆𝑡 means that the likelihood depends on both 𝜆0 and 𝜆1. Therefore, we need to use MH steps to sample from these conditional distributions.
+This posterior distribution has a gamma shape but is not conjugate to the prior distribution, so we cannot sample from it directly using Gibbs sampling. Instead, we can use MH steps to propose new values of 𝜆0 and accept or reject them based on the ratio of the posterior densities at the proposed and current values of 𝜆0.
 
-These are not in closed form, and so we need to use MH steps to sample from them.
+
 ```{r}
-# Define the data and prior distributions
-y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 
-       9, 4, 2, 5, 7, 7, 5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 
-       9, 25, 6, 6, 4, 22, 3, 2, 5, 3, 4, 8, 4, 17, 14)
+library(rjags)
 
-# Define the log-likelihood function
-loglik <- function(lambda0, lambda1, p, y, n) {
-  lambda <- lambda0 + lambda1 * p
-  sum(dpois(y, lambda, log = TRUE))
-}
+# Define the data
+y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 9, 4, 2, 5, 7, 
+       7, 5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 9, 25, 6, 6, 4, 22, 3, 2, 5, 3,
+       4, 8, 4, 17, 14)
+T <- length(y)
 
-# Define the log-prior function for lambda0
-logprior_lambda0 <- function(lambda0, shape, rate) {
-  dgamma(lambda0, shape, rate, log = TRUE)
-}
+# Define the JAGS model
+model_string <- "
+  model {
+    # Priors
+    lambda0 ~ dgamma(1, 0.1)
+    lambda1 ~ dgamma(1, 0.1)
+    p ~ dunif(0, 1)
 
-# Define the log-prior function for lambda1
-logprior_lambda1 <- function(lambda1, shape, rate) {
-  dgamma(lambda1, shape, rate, log = TRUE)
-}
+    # Likelihood
+    for (t in 1:T) {
+      y[t] ~ dpois(lambda[t])
+      lambda[t] <- lambda0 + lambda1 * x[t]
+      x[t] ~ dbern(p)
+    }
+  }
+"
 
-# Set the initial values for the MCMC sampler
-lambda0 <- rgamma(1, shape = 1, rate = 0.1)
-lambda1 <- rgamma(1, shape = 1, rate = 0.1)
-p <- runif(1)
+# Prepare the data list for JAGS
+data_list <- list(y = y, T = T)
 
-# Set the parameters for the MCMC sampler
-num_iter <- 5000
-burn_in <- 1000
-prop_sd_lambda0 <- 0.1
-prop_sd_lambda1 <- 0.1
-n <- length(y)
-shape <- 1
-rate <- 0.1
-mean_gamma <- 10
-var_gamma <- 100
+# Set the JAGS parameters
+params <- c("lambda0", "lambda1", "p", "x")
 
-# Initialize acceptance rates
-accept_lambda0 <- 0
-accept_lambda1 <- 0
+# Set the number of iterations and burn-in period
+n_iter <- 5000
+n_burnin <- 1000
+
+# Initialize the MCMC chains
+n_chains <- 3
+jags_inits <- list(
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5))
+)
 
 # Run the MCMC sampler
-for (i in 2:num_iter) {
-  # Update p using Metropolis-Hastings
-  p_prop <- rnorm(1, p[i-1], 0.1)
-  log_alpha_p <- loglik(lambda0[i-1], lambda1[i-1], p_prop, y, n) - loglik(lambda0[i-1], lambda1[i-1], p[i-1], y, n)
-  if (log(runif(1)) < log_alpha_p) {
-    p[i] <- p_prop
-  } else {
-    p[i] <- p[i-1]
-  }
-  
-  # Update lambda0 using Metropolis-Hastings
-  lambda0_prop <- rnorm(1, lambda0[i-1], prop_sd_lambda0)
-  log_alpha0 <- loglik(lambda0_prop, lambda1[i-1], p[i], y, n) - loglik(lambda0[i-1], lambda1[i-1], p[i], y, n) + 
-    logprior_lambda0(lambda0_prop, shape, rate) - logprior_lambda0(lambda0[i-1], shape, rate)
-  if (log(runif(1)) < log_alpha0) {
-    lambda0[i] <- lambda0_prop
-    accept_lambda0 <- accept_lambda0 + 1
-  } else {
-    lambda0[i] <- lambda0[i-1]
-  }
-  
-  # Update lambda1 using Metropolis-Hastings
-  lambda1_prop <- rnorm(1, lambda1[i-1], prop_sd_lambda1)
-  log_alpha1 <- loglik(lambda0[i], lambda1_prop, p[i], y, n) - loglik(lambda0[i], lambda1[i-1], p[i], y, n) + 
-    logprior_lambda1(lambda1_prop, shape, rate) - logprior_lambda1(lambda1[i-1], shape, rate)
-  if (log(runif(1)) < log_alpha1) {
-    lambda1[i] <- lambda1_prop
-    accept_lambda1 <- accept_lambda1 + 1
-  } else {
-    lambda1[i] <- lambda1[i-1]
-  }
-}
+jags_model <- jags.model(textConnection(model_string), data = data_list, inits = jags_inits, n.chains = n_chains)
+jags_samples <- coda.samples(jags_model, variable.names = params, n.iter = n_iter, n.burnin = n_burnin, thin = 1)
 
-# Find the posterior mean and 95% credible intervals for lambda_high
-lambda_high <- lambda0 + lambda1
-post_mean_lambda_high <- mean(lambda_high)
-post_ci_lambda_high <- quantile(lambda_high, c(0.025, 0.975))
+# Calculate the posterior means and credible intervals
+post_means <- apply(jags_samples[[1]], 2, mean)
+post_cis <- t(apply(jags_samples[[1]], 2, function(x) quantile(x, c(0.025, 0.975))))
+post_lambdas <- post_means[1] + post_means[2]
 
 # Print the results
-cat("Posterior mean of lambda_high: ", post_mean_lambda_high, "\n")
-cat("95% credible interval for lambda_high: ", post_ci_lambda_high[1], "-", post_ci_lambda_high[2], "\n")
+cat("Posterior mean of lambda_high:", post_lambdas, "\n")
+post_cis
+
+# Create trace plots
+plot(jags_samples[, "lambda0"], main = "Trace plot for lambda0")
+plot(jags_samples[, "lambda1"], main = "Trace plot for lambda1")
+plot(jags_samples[, "p"], main = "Trace plot for p")
+
 
 
 ```
 
 ## What this code does:
-The code implements an MCMC sampler using the Metropolis-Hastings algorithm to
-draw samples from the posterior distribution of the mean number of calls in the
+Since I have continue nimble issues, I opted to use **rjags**. The code uses JAGS to implement an MCMC sampler using the Metropolis-Hastings algorithm to draw samples from the posterior distribution of the mean number of calls in the
 "high" state of a Poisson model with two latent states.
 
-The model assumes that there are two latent states,
-one with a high call rate and one with a lower call rate.
-The observed data are the number of calls to a help line each hour.
-The model assumes that the observed data follow a Poisson distribution with
-parameter lambda(t), where lambda(t) is the sum of two parameters, lambda0 and lambda1 times a
-binary indicator variable x(t). The indicator variable x(t) follows a Bernoulli
-distribution with parameter p, which is itself assumed to follow a uniform
-distribution on the interval (0, 1). The parameters lambda0 and lambda1 are assumed
-to follow gamma distributions with shape parameters equal to 1 and rate
-parameters equal to 0.1, which gives them means of 10 and variances of 100.
+The JAGS model draws samples from the posterior distribution of the mean number of calls in the "high" state which has a rate (𝜆0 + 𝜆1). The observed data is defined as y. The model has priors for 𝜆0, 𝜆1, and p, which are gamma, gamma, and uniform distributions respectively. The likelihood is defined as a Poisson distribution, where the rate parameter (lambda) is defined as 𝜆0 + 𝜆1 * x[t], and x[t] is a Bernoulli distribution with parameter p.
 
-The Metropolis-Hastings algorithm is used to draw samples from the
-joint posterior distribution of the parameters lambda0, lambda1, and p. The algorithm
-iteratively generates proposals for the parameters and accepts or rejects them
-based on the posterior density of the proposed values relative to the current values.
+The code then prepares the data list, sets the parameters, and specifies the number of iterations, burn-in period, and lastly initializes the MCMC chains using **jags.model** and **coda.samples** functions. The model then generate samples using the specified number of iterations, and then calculates the posterior means and credible intervals for the model parameters.
 
-The code initializes the parameters lambda0, lambda1, and p and sets the
-number of MCMC iterations. It then iteratively generates proposals for
-the parameters and evaluates their posterior density using the observed data
-and the model specification. The proposal distributions are chosen to be normal
-distributions centered at the current values of the parameters, with standard
-deviations chosen to ensure reasonable acceptance rates. The code stores the
-accepted parameter values and reports the posterior means and 95% credible
-intervals for the mean number of calls in the "high" state.
+Finally, the code calculates the posterior mean of the mean number of calls in the "high" state by adding the posterior means of 𝜆0 and 𝜆1.
 
 ## part b. 
 Under this new model, show that 𝑛𝑡0 and 𝑛𝑡1 have conjugate updates, and implement
@@ -482,71 +448,79 @@ Therefore, 𝑛𝑡0 and 𝑛𝑡1 have conjugate updates.
 
 
 ```{r}
-library(rjags)
-
+# In JAGS, again
 # Define the data
-y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 9, 4, 2, 5, 7, 7, 5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 9, 25, 6, 6, 4, 22, 3, 2, 5, 3, 4, 8, 4, 17, 14)
+y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 9, 4, 2, 5, 7, 7, 
+       5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 9, 25, 6, 6, 4, 22, 3, 2, 5, 3, 
+       4, 8, 4, 17, 14)
 
 T <- length(y)
 
 # Define the JAGS model
-model_string <- "model{
+model_string2 <- "model{
   # Priors
-  lambda_0 ~ dgamma(1, 0.1)
-  lambda_1 ~ dgamma(1, 0.1)
+  lambda0 ~ dgamma(1, 0.1)
+  lambda1 ~ dgamma(1, 0.1)
   p ~ dunif(0, 1)
 
   # Data augmentation
   for(t in 1:T) {
     y[t] ~ dpois(nt0[t] + nt1[t])
-    nt0[t] ~ dpois(lambda_0)
-    nt1[t] ~ dpois(lambda_1 * x[t])
+    nt0[t] ~ dpois(lambda0)
+    nt1[t] ~ dpois(lambda1 * x[t])
     x[t] ~ dbern(p)
   }
 }"
 
 # Prepare the data list for JAGS
-data_list <- list(y = y, T = T)
+data_list2 <- list(y = y, T = T)
 
 # Set the JAGS parameters
-params <- c("lambda_0", "lambda_1", "p", "x")
+params2 <- c("lambda0", "lambda1", "p", "x")
 
 # Set the number of iterations and burn-in period
-n_iter <- 5000
-n_burnin <- 1000
+n_iter2 <- 5000
+n_burnin2 <- 1000
 
 # Initialize the MCMC chains
-n_chains <- 3
-jags_inits <- list(
-  list(lambda_0 = 10, lambda_1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
-  list(lambda_0 = 10, lambda_1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
-  list(lambda_0 = 10, lambda_1 = 10, p = 0.5, x = rbinom(T, 1, 0.5))
+n_chains2 <- 3
+jags_inits2 <- list(
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5))
 )
 
 # Run the MCMC sampler
-jags_model <- jags.model(textConnection(model_string), data = data_list, inits = jags_inits, n.chains = n_chains)
-jags_samples <- coda.samples(jags_model, variable.names = params, n.iter = n_iter, n.burnin = n_burnin, thin = 1)
+jags_model2 <- jags.model(textConnection(model_string2), data = data_list2, inits = jags_inits2, n.chains = n_chains2)
+jags_samples2 <- coda.samples(jags_model2, variable.names = params2, n.iter = n_iter2, n.burnin = n_burnin2, thin = 1)
 
 # Calculate the posterior means and credible intervals
-post_means <- apply(jags_samples[[1]], 2, mean)
-post_cis <- t(apply(jags_samples[[1]], 2, function(x) quantile(x, c(0.025, 0.975))))
-post_lambdas <- post_means[1] + post_means[2]
+post_means2 <- apply(jags_samples2[[1]], 2, mean)
+post_cis2 <- t(apply(jags_samples2[[1]], 2, function(x) quantile(x, c(0.025, 0.975))))
+post_lambdas2 <- post_means2[1] + post_means2[2]
 
 # Print the results
-cat("Posterior mean of lambda_0:", post_means[1], "\n")
-cat("95% credible interval of lambda_0:", post_cis[1], "\n")
+cat("Posterior mean of lambda_high:", post_lambdas2, "\n")
+cat("95% credible interval of lambda_0:", post_cis2[1], "\n")
+post_cis2
+
+# Create trace plots
+plot(jags_samples2[, "lambda0"], main = "Trace plot for lambda0")
+plot(jags_samples2[, "lambda1"], main = "Trace plot for lambda1")
+plot(jags_samples2[, "p"], main = "Trace plot for p")
+
 
 ```
 
 ### Explination:
-The model assumes that the counts are generated by a Poisson distribution, with a rate parameter that depends on an underlying binary variable x and two unknown Poisson rates lambda_0 and lambda_1. The binary variable x is modeled as a Bernoulli distribution with an unknown probability p.
+The model here assumes that the counts are generated by a Poisson distribution, with a rate parameter that depends on an underlying binary variable x and two unknown Poisson rates lambda0 and lambda1. The binary variable x is modeled as a Bernoulli distribution with an unknown probability p.
 
-The code first defines the data y and the total number of observations T. Then, it specifies the JAGS model as a text string in the variable model_string. This model includes prior distributions for the unknown parameters, a data augmentation step to model the latent variables nt0 and nt1, and the likelihood function for the observed data y.
+Similarly to above, the code first defines the data y and the total number of observations T. Then, it specifies the JAGS model, which includes prior distributions for the unknown parameters, a data augmentation step to model the latent variables nt0 and nt1, and the likelihood function for the observed data y.
 
-Since I have continue nimble isues, I opted to use 'rjags'. After preparing the data list and setting the JAGS parameters, the code initializes the MCMC chains and runs the sampler using the 'jags.model' and 'coda.samples' functions. The posterior means and credible intervals for the parameters are then calculated using the apply and quantile functions. Finally, the code calculates the posterior distribution of lambda_0 + lambda_1 as post_lambdas <- post_means[1] + post_means[2]
+After preparing the data list and setting the parameters, the code initializes the MCMC chains and runs the sampler using the **jags.model** and **coda.samples** functions. The posterior means and credible intervals for the parameters are then calculated using the apply and quantile functions. Finally, the code calculates the posterior distribution of lambda0 + lambda1 as post_lambdas <- post_means[1] + post_means[2]
 
 
-```
+
 
 
 

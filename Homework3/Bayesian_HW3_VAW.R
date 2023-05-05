@@ -174,15 +174,16 @@ source("Homework3/mcmc.lm.rr.r")
 source("Homework3/ShabyWellsLogAdapt.r")
 library(statmod)
 
+# Remove any NAs that may cause issues down the line (looking at you y.lag[1])
+lagos <- na.omit(lagos)
 ## Create Indicator Vars
 lagos$ag=0
 lagos$ag[lagos$SurLand=="agricultural"] <- 1
 lagos$forest=0
 lagos$forest[lagos$SurLand=="forest"] <- 1
 
-## Format the data for 
+## Format the data
 df <- data.frame(
-  #int = rep(1,nrow(lagos)),
   log.tp = log(lagos$tp),
   log.sec = log(lagos$secchi),
   x = lagos$lon,
@@ -193,16 +194,22 @@ df <- data.frame(
   forest = lagos$forest
 )
 
+## Format the data for 
+df2 <- data.frame(
+  log.tp = df$log.tp,
+  log.sec = df$log.sec,
+  x_all = df$x + df$x2,
+  y_all = df$y + df$y2,
+  ag = df$ag,
+  forest = df$forest
+)
+
+
 # Set up response variable
 y.lag=lagos[,5]
-# There is an NA value here that I think is causing issues:
-y.lag[1]
-# Setting this to be the mean value (probably not correct)
-mean(y.lag)
-y.lag[1] <-  951.8362
 
 # Scale data frame
-x_scale <- scale(df)
+x_scale <- scale(df2)
 
 # Run RR mcmc using EH code
 lagos.out = mcmc.lm.rr(y = y.lag, 
@@ -217,7 +224,6 @@ lagos.out = mcmc.lm.rr(y = y.lag,
                        tune.s2=.01,
                        # adapting every i'th iteration
                        adapt.iter=100)
-
 ## trace plots
 par(mfrow=c(3,4))
 for(k in 2:ncol(lagos.out)){
@@ -240,119 +246,36 @@ apply(lagos.out,2,mean)
 t(apply(lagos.out, 2, function(x) quantile(x, c(0.025, 0.975))))
 
 # Question 4 (a)-----
-# Define the data and prior distributions
-y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 
-       9, 4, 2, 5, 7, 7, 5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 
-       9, 25, 6, 6, 4, 22, 3, 2, 5, 3, 4, 8, 4, 17, 14)
-
-# Define the log-likelihood function
-loglik <- function(lambda0, lambda1, p, y, n) {
-  lambda <- lambda0 + lambda1 * p
-  sum(dpois(y, lambda, log = TRUE))
-}
-
-# Define the log-prior function for lambda0
-logprior_lambda0 <- function(lambda0, shape, rate) {
-  dgamma(lambda0, shape, rate, log = TRUE)
-}
-
-# Define the log-prior function for lambda1
-logprior_lambda1 <- function(lambda1, shape, rate) {
-  dgamma(lambda1, shape, rate, log = TRUE)
-}
-
-# Set the initial values for the MCMC sampler
-lambda0 <- rgamma(1, shape = 1, rate = 0.1)
-lambda1 <- rgamma(1, shape = 1, rate = 0.1)
-p <- runif(1)
-
-# Set the parameters for the MCMC sampler
-num_iter <- 5000
-burn_in <- 1000
-prop_sd_lambda0 <- 0.1
-prop_sd_lambda1 <- 0.1
-n <- length(y)
-shape <- 1
-rate <- 0.1
-mean_gamma <- 10
-var_gamma <- 100
-
-# Initialize acceptance rates
-accept_lambda0 <- 0
-accept_lambda1 <- 0
-
-# Run the MCMC sampler
-for (i in 2:num_iter) {
-  # Update p using Metropolis-Hastings
-  p_prop <- rnorm(1, p[i-1], 0.1)
-  log_alpha_p <- loglik(lambda0[i-1], lambda1[i-1], p_prop, y, n) - loglik(lambda0[i-1], lambda1[i-1], p[i-1], y, n)
-  if (log(runif(1)) < log_alpha_p) {
-    p[i] <- p_prop
-  } else {
-    p[i] <- p[i-1]
-  }
-  
-  # Update lambda0 using Metropolis-Hastings
-  lambda0_prop <- rnorm(1, lambda0[i-1], prop_sd_lambda0)
-  log_alpha0 <- loglik(lambda0_prop, lambda1[i-1], p[i], y, n) - loglik(lambda0[i-1], lambda1[i-1], p[i], y, n) + 
-    logprior_lambda0(lambda0_prop, shape, rate) - logprior_lambda0(lambda0[i-1], shape, rate)
-  if (log(runif(1)) < log_alpha0) {
-    lambda0[i] <- lambda0_prop
-    accept_lambda0 <- accept_lambda0 + 1
-  } else {
-    lambda0[i] <- lambda0[i-1]
-  }
-  
-  # Update lambda1 using Metropolis-Hastings
-  lambda1_prop <- rnorm(1, lambda1[i-1], prop_sd_lambda1)
-  log_alpha1 <- loglik(lambda0[i], lambda1_prop, p[i], y, n) - loglik(lambda0[i], lambda1[i-1], p[i], y, n) + 
-    logprior_lambda1(lambda1_prop, shape, rate) - logprior_lambda1(lambda1[i-1], shape, rate)
-  if (log(runif(1)) < log_alpha1) {
-    lambda1[i] <- lambda1_prop
-    accept_lambda1 <- accept_lambda1 + 1
-  } else {
-    lambda1[i] <- lambda1[i-1]
-  }
-}
-
-# Find the posterior mean and 95% credible intervals for lambda_high
-lambda_high <- lambda0 + lambda1
-post_mean_lambda_high <- mean(lambda_high)
-post_ci_lambda_high <- quantile(lambda_high, c(0.025, 0.975))
-
-# Print the results
-cat("Posterior mean of lambda_high: ", post_mean_lambda_high, "\n")
-cat("95% credible interval for lambda_high: ", post_ci_lambda_high[1], "-", post_ci_lambda_high[2], "\n")
-
-
-# Question 4 (b) ----
 library(rjags)
 
 # Define the data
-y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 9, 4, 2, 5, 7, 7, 5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 9, 25, 6, 6, 4, 22, 3, 2, 5, 3, 4, 8, 4, 17, 14)
+y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 9, 4, 2, 5, 7, 
+       7, 5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 9, 25, 6, 6, 4, 22, 3, 2, 5, 3,
+       4, 8, 4, 17, 14)
 T <- length(y)
 
 # Define the JAGS model
-model_string <- "model{
-  # Priors
-  lambda_0 ~ dgamma(1, 0.1)
-  lambda_1 ~ dgamma(1, 0.1)
-  p ~ dunif(0, 1)
+model_string <- "
+  model {
+    # Priors
+    lambda0 ~ dgamma(1, 0.1)
+    lambda1 ~ dgamma(1, 0.1)
+    p ~ dunif(0, 1)
 
-  # Data augmentation
-  for(t in 1:T) {
-    y[t] ~ dpois(nt0[t] + nt1[t])
-    nt0[t] ~ dpois(lambda_0)
-    nt1[t] ~ dpois(lambda_1 * x[t])
-    x[t] ~ dbern(p)
+    # Likelihood
+    for (t in 1:T) {
+      y[t] ~ dpois(lambda[t])
+      lambda[t] <- lambda0 + lambda1 * x[t]
+      x[t] ~ dbern(p)
+    }
   }
-}"
+"
 
 # Prepare the data list for JAGS
 data_list <- list(y = y, T = T)
 
 # Set the JAGS parameters
-params <- c("lambda_0", "lambda_1", "p", "x")
+params <- c("lambda0", "lambda1", "p", "x")
 
 # Set the number of iterations and burn-in period
 n_iter <- 5000
@@ -361,9 +284,9 @@ n_burnin <- 1000
 # Initialize the MCMC chains
 n_chains <- 3
 jags_inits <- list(
-  list(lambda_0 = 10, lambda_1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
-  list(lambda_0 = 10, lambda_1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
-  list(lambda_0 = 10, lambda_1 = 10, p = 0.5, x = rbinom(T, 1, 0.5))
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5))
 )
 
 # Run the MCMC sampler
@@ -376,11 +299,74 @@ post_cis <- t(apply(jags_samples[[1]], 2, function(x) quantile(x, c(0.025, 0.975
 post_lambdas <- post_means[1] + post_means[2]
 
 # Print the results
-cat("Posterior mean of lambda_0:", post_means[1], "\n")
-cat("95% credible interval of lambda_0:", post_cis[1], "\n")
+cat("Posterior mean of lambda_high:", post_lambdas, "\n")
+post_cis
 
+# Create trace plots
+plot(jags_samples[, "lambda0"], main = "Trace plot for lambda0")
+plot(jags_samples[, "lambda1"], main = "Trace plot for lambda1")
+plot(jags_samples[, "p"], main = "Trace plot for p")
 
+# Question 4 (b) ----
+# In JAGS, again
+# Define the data
+y <- c(9, 15, 14, 5, 6, 4, 4, 4, 8, 0, 10, 22, 7, 2, 6, 2, 18, 9, 4, 2, 5, 7, 7, 
+       5, 8, 7, 2, 15, 17, 7, 1, 4, 8, 5, 8, 9, 25, 6, 6, 4, 22, 3, 2, 5, 3, 
+       4, 8, 4, 17, 14)
 
+T <- length(y)
+
+# Define the JAGS model
+model_string2 <- "model{
+  # Priors
+  lambda0 ~ dgamma(1, 0.1)
+  lambda1 ~ dgamma(1, 0.1)
+  p ~ dunif(0, 1)
+
+  # Data augmentation
+  for(t in 1:T) {
+    y[t] ~ dpois(nt0[t] + nt1[t])
+    nt0[t] ~ dpois(lambda0)
+    nt1[t] ~ dpois(lambda1 * x[t])
+    x[t] ~ dbern(p)
+  }
+}"
+
+# Prepare the data list for JAGS
+data_list2 <- list(y = y, T = T)
+
+# Set the JAGS parameters
+params2 <- c("lambda0", "lambda1", "p", "x")
+
+# Set the number of iterations and burn-in period
+n_iter2 <- 5000
+n_burnin2 <- 1000
+
+# Initialize the MCMC chains
+n_chains2 <- 3
+jags_inits2 <- list(
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5)),
+  list(lambda0 = 10, lambda1 = 10, p = 0.5, x = rbinom(T, 1, 0.5))
+)
+
+# Run the MCMC sampler
+jags_model2 <- jags.model(textConnection(model_string2), data = data_list2, inits = jags_inits2, n.chains = n_chains2)
+jags_samples2 <- coda.samples(jags_model2, variable.names = params2, n.iter = n_iter2, n.burnin = n_burnin2, thin = 1)
+
+# Calculate the posterior means and credible intervals
+post_means2 <- apply(jags_samples2[[1]], 2, mean)
+post_cis2 <- t(apply(jags_samples2[[1]], 2, function(x) quantile(x, c(0.025, 0.975))))
+post_lambdas2 <- post_means2[1] + post_means2[2]
+
+# Print the results
+cat("Posterior mean of lambda_high:", post_lambdas2[1], "\n")
+cat("95% credible interval of lambda_0:", post_cis2[1], "\n")
+
+# Create trace plots
+plot(jags_samples2[, "lambda0"], main = "Trace plot for lambda0")
+plot(jags_samples2[, "lambda1"], main = "Trace plot for lambda1")
+plot(jags_samples2[, "p"], main = "Trace plot for p")
 
 # Start to Q5 (unfinished):
 # # Define the model
